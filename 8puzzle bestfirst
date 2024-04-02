@@ -1,0 +1,77 @@
+import copy
+from queue import PriorityQueue
+
+class EightPuzzle:
+    def __init__(self, initial, goal):
+        self.initial = initial
+        self.goal = goal
+
+    def get_blank_space(self, state):
+        for i in range(3):
+            for j in range(3):
+                if state[i][j] == 0:
+                    return (i, j)
+
+    def get_heuristic(self, state):
+        cnt = 0
+        for i in range(3):
+            for j in range(3):
+                if state[i][j] != self.goal[i][j]:
+                    cnt += 1
+        return cnt
+
+    def get_next_move(self, state):
+        blank = self.get_blank_space(state)
+        moves = []
+
+        for delta in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            new_i, new_j = blank[0] + delta[0], blank[1] + delta[1]
+            if 0 <= new_i < 3 and 0 <= new_j < 3:
+                new_state = copy.deepcopy(state)
+                new_state[blank[0]][blank[1]] = new_state[new_i][new_j]
+                new_state[new_i][new_j] = 0
+                moves.append(new_state)
+
+        return moves
+
+class BestFirstSearch:
+    def __init__(self, puzzle):
+        self.puzzle = puzzle
+        self.closed = {}  # Using a dictionary for faster membership checks
+        self.open = PriorityQueue()
+
+    def search(self):
+        self.open.put((self.puzzle.get_heuristic(self.puzzle.initial), self.puzzle.initial, []))
+        while not self.open.empty():
+            _, state, path = self.open.get()
+            if state == self.puzzle.goal:
+                return path
+            elif str(state) not in self.closed or self.puzzle.get_heuristic(state) < self.closed[str(state)]:
+                self.closed[str(state)] = self.puzzle.get_heuristic(state)
+                for move in self.puzzle.get_next_move(state):
+                    self.open.put((self.puzzle.get_heuristic(move), move, path + [move]))
+        return None
+
+def main():
+    initial = [[2, 0, 3], [1, 8, 4], [7, 6, 5]]
+    goal = [[1, 2, 3], [8, 0, 4], [7, 6, 5]]
+
+    puzzle = EightPuzzle(initial, goal)
+    bfs = BestFirstSearch(puzzle)
+
+    path = bfs.search()
+
+    print("Initial State:")
+    for row in initial:
+        print(row)
+    print("\nGoal State:")
+    for row in goal:
+        print(row)
+    print("\nPath:")
+    for state in path:
+        for row in state:
+            print(row)
+        print()
+
+if __name__ == "__main__":
+    main()
