@@ -1,0 +1,70 @@
+from queue import Queue
+from copy import deepcopy
+
+class NQueenNode:
+    def __init__(self, n, state=None):
+        self.n = n
+        self.state = state or [[0] * n for _ in range(n)]
+
+    def get_queens_positions(self):
+        queens = []
+        for row in range(self.n):
+            for column in range(self.n):
+                if self.state[row][column] == 1:
+                    queens.append((row, column))
+        return queens
+    
+    def is_safe(self, row, column):
+        queens = self.get_queens_positions()
+        for queen_row, queen_column in queens:
+            if column == queen_column or abs(row - queen_row) == abs(column - queen_column):
+                return False
+        return True
+    
+    def place_queen(self, row, column):
+        new_state = deepcopy(self.state)
+        new_state[row][column] = 1
+        return NQueenNode(self.n, new_state)
+    
+    def get_possible_actions(self):
+        queens = self.get_queens_positions()
+        actions = []
+        for queen_row, queen_column in queens:
+            for i in range(self.n):
+                if i != queen_row and self.is_safe(i, queen_column):
+                    actions.append((i, queen_column))
+        return actions
+    
+    def perform_action(self, action):
+        row, column = action
+        if self.is_safe(row, column):
+            return self.place_queen(row, column)
+        return None
+    
+    def print_board(self):
+        for row in self.state:
+            line = ['Q' if cell == 1 else '.' for cell in row]
+            print(' '.join(line))
+        print()
+
+def bfs_solve_n_queens(n):
+    initial_state = [[0] * n for _ in range(n)]
+    queue = Queue()
+    queue.put(NQueenNode(n, initial_state))
+    while not queue.empty():
+        current_node = queue.get()
+        if len(current_node.get_queens_positions()) == n:
+            current_node.print_board()
+            return True
+        possible_actions = current_node.get_possible_actions()
+        for action in possible_actions:
+            new_node = current_node.perform_action(action)
+            if new_node:
+                queue.put(new_node)
+    return False
+
+# Example usage:
+n = 5
+print(f"Solving N-Queens problem for N = {n} using BFS:")
+if not bfs_solve_n_queens(n):
+    print("No solution found.")
