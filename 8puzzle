@@ -1,0 +1,45 @@
+from collections import deque
+
+class Puzzle:
+    # Your existing Puzzle class code here...
+
+    def __init__(self, board):
+        self.board = board
+        self.goal = [1, 2, 3, 4, 5, 6, 7, 8, 0]
+
+    # Your existing methods (printState, isGoal, getEmptyTile, moveUp, moveDown, moveLeft, moveRight, move) here...
+
+    def solve(self):
+        queue = deque([(self.board, [])])
+        visited = set()
+
+        while queue:
+            state, path = queue.popleft()
+            if state == self.goal:
+                return path
+            if tuple(state) in visited:
+                continue
+            visited.add(tuple(state))
+
+            next_moves = [self.move(direction) for direction in range(1, 5)]
+            next_states = [(move, path + [move]) for move in next_moves if move is not None]
+            queue.extend(next_states)
+
+        return None  # No solution found
+
+def main():
+    # Example usage:
+    board = [1, 2, 3, 4, 5, 6, 7, 0, 8]  # Initial board configuration
+    puzzle = Puzzle(board)
+    solution = puzzle.solve()
+
+    if solution:
+        print("Solution Path:")
+        for step, state in enumerate(solution, 1):
+            print(f"Step {step}:")
+            Puzzle(state).printState()
+    else:
+        print("No solution found.")
+
+if __name__ == "__main__":
+    main()
