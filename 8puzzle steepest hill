@@ -1,0 +1,95 @@
+class PuzzleNode:
+    def __init__(self, initial_state, goal_state):
+        self.initial_state = initial_state
+        self.goal_state = goal_state
+        self.state = initial_state
+
+    def get_blank_position(self):
+        for i in range(3):
+            for j in range(3):
+                if self.state[i][j] == 0:
+                    return i, j
+
+    @staticmethod
+    def swap(a, b):
+        return b, a
+
+    def get_possible_actions(self):
+        blank_row, blank_column = self.get_blank_position()
+        actions = []
+        if blank_row > 0:
+            actions.append('up')
+        if blank_row < 2:
+            actions.append('down')
+        if blank_column > 0:
+            actions.append('left')
+        if blank_column < 2:
+            actions.append('right')
+        return actions
+
+    def perform_action(self, action):
+        blank_row, blank_column = self.get_blank_position()
+        next_state = [list(row) for row in self.state]
+        if action == 'up':
+            next_state[blank_row][blank_column], next_state[blank_row - 1][blank_column] = self.swap(
+                next_state[blank_row][blank_column], next_state[blank_row - 1][blank_column])
+        elif action == 'down':
+            next_state[blank_row][blank_column], next_state[blank_row + 1][blank_column] = self.swap(
+                next_state[blank_row][blank_column], next_state[blank_row + 1][blank_column])
+        elif action == 'left':
+            next_state[blank_row][blank_column], next_state[blank_row][blank_column - 1] = self.swap(
+                next_state[blank_row][blank_column], next_state[blank_row][blank_column - 1])
+        elif action == 'right':
+            next_state[blank_row][blank_column], next_state[blank_row][blank_column + 1] = self.swap(
+                next_state[blank_row][blank_column], next_state[blank_row][blank_column + 1])
+        return PuzzleNode(next_state, self.goal_state)
+
+    def print_board(self):
+        for row in self.state:
+            print(row)
+        print()
+
+def heuristic_misplaced_tiles(current_state, goal_state):
+    misplaced = 0
+    for i in range(3):
+        for j in range(3):
+            if current_state[i][j] != goal_state[i][j]:
+                misplaced += 1
+    return misplaced
+
+def steepest_hill_climbing(initial_state, goal_state, max_steps=100):
+    current_node = PuzzleNode(initial_state, goal_state)
+    step = 1
+
+    while step <= max_steps:
+        print(f"Step {step}:")
+        current_node.print_board()
+
+        if current_node.state == goal_state:
+            print("Goal state reached!")
+            break
+
+        possible_actions = current_node.get_possible_actions()
+        best_neighbor = None
+        best_heuristic = float('inf')
+
+        for action in possible_actions:
+            neighbor = current_node.perform_action(action)
+            h = heuristic_misplaced_tiles(neighbor.state, goal_state)
+            if h < best_heuristic:
+                best_heuristic = h
+                best_neighbor = neighbor
+
+        if best_neighbor:
+            current_node = best_neighbor
+            step += 1
+        else:
+            print("No better move. Local minimum reached.")
+            break
+
+# Initial and goal states
+initial_state = [[1, 2, 3], [4, 0, 5], [6, 7, 8]]
+goal_state = [[1, 2, 3], [4, 5, 0], [6, 7, 8]]
+
+# Solve using steepest hill climbing algorithm with a maximum of 50 steps
+steepest_hill_climbing(initial_state, goal_state, max_steps=50)
