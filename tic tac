@@ -1,0 +1,75 @@
+def print_board(board):
+    '''Prints the Tic-Tac-Toe board'''
+    print('  |   |   ')
+    print(' ' + board[1] + ' | ' + board[2] + ' | ' + board[3])
+    print('  |   |   ')
+    print('-----------')
+    print('  |   |   ')
+    print(' ' + board[4] + ' | ' + board[5] + ' | ' + board[6])
+    print('  |   |   ')
+    print('-----------')
+    print('  |   |   ')
+
+def is_winner(b, l):
+    '''Checks if a player has won'''
+    return (b[1]==l and b[2]==l and b[3]==l) or \
+        (b[4]==l and b[5]==l and b[6]==l) or \
+        (b[7]==l and b[8]==l and b[9]==l) or \
+        (b[1]==l and b[4]==l and b[7]==l) or \
+        (b[2]==l and b[5]==l and b[8]==l) or \
+        (b[3]==l and b[6]==l and b[9]==l) or \
+        (b[1]==l and b[5]==l and b[9]==l) or \
+        (b[3]==l and b[5]==l and b[7]==l)
+
+def space_is_free(pos, board):
+    '''Checks if a space on the board is free'''
+    return board[pos] == ' '
+
+def insert_letter(letter, pos, board):
+    '''Inserts a letter (X or O) at a given position on the board'''
+    board[pos] = letter
+
+def player_move(sym, board):
+    '''Handles player's move'''
+    while True:
+        move = input(f'Please select a position to place an \'{sym}\' (1-9): ')
+        try:
+            move = int(move)
+            if 1 <= move <= 9 and space_is_free(move, board):
+                insert_letter(sym, move, board)
+                break
+            else:
+                print('Invalid move! Please try again.')
+        except ValueError:
+            print('Invalid input! Please enter a number.')
+
+def is_board_full(board):
+    '''Checks if the board is full'''
+    return ' ' not in board
+
+def main():
+    board = [' ' for _ in range(10)]
+    print('Welcome to Tic Tac Toe!')
+    print_board(board)
+    
+    while not is_board_full(board):
+        if not is_winner(board, 'X'):
+            player_move('O', board)
+            print_board(board)
+        else:
+            print('X won this time!')
+            break
+        
+        if not is_winner(board, 'O'):
+            player_move('X', board)
+            print_board(board)
+        else:
+            print('O won this time!')
+            break
+    
+    if is_board_full(board) and not is_winner(board, 'X') and not is_winner(board, 'O'):
+        print('It\'s a tie!')
+
+if __name__ == '__main__':
+    main()
+
