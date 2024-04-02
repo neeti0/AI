@@ -1,0 +1,40 @@
+class WaterJug:
+    def __init__(self, cap):
+        self.cap = cap
+        self.curr = 0
+
+    def fill(self):
+        self.curr = self.cap
+
+    def empty(self):
+        self.curr = 0
+
+    def transfer(self, other):
+        space_left = other.cap - other.curr
+        if self.curr <= space_left:
+            other.curr += self.curr
+            self.curr = 0
+        else:
+            other.fill()
+            self.curr -= space_left
+
+    def print_state(self):
+        print(f"Current: {self.curr}, Capacity: {self.cap}")
+
+
+def main():
+    jug1 = WaterJug(3)
+    jug2 = WaterJug(4)
+    jug1.print_state()
+    jug2.print_state()
+
+    jug1.fill()
+    jug1.print_state()
+
+    jug1.transfer(jug2)
+    jug1.print_state()
+    jug2.print_state()
+
+
+if __name__ == '__main__':
+    main()
