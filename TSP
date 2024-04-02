@@ -1,0 +1,72 @@
+import heapq
+
+class TSPState:
+    def __init__(self, tour, vis, graph):
+        self.tour = tour  # current tour
+        self.vis = vis  # visited nodes
+        self.graph = graph
+
+    def is_complete(self):
+        return len(self.tour) == len(self.graph)
+
+    def last_city(self):
+        return self.tour[-1] if len(self.tour) > 0 else None
+
+    def next_cities(self):
+        last_city = self.last_city()
+        if last_city is None:
+            return range(len(self.graph))
+        return [i for i in range(len(self.graph)) if i not in self.vis]
+
+    def add_city(self, city):
+        new_tour = self.tour + [city]
+        new_vis = self.vis + [city]
+        return TSPState(new_tour, new_vis, self.graph)
+
+def manhattan_distance(city1, city2):
+    return abs(city1[0] - city2[0]) + abs(city1[1] - city2[1])
+
+def tsp_cost(graph, tour):
+    total_cost = 0
+    for i in range(len(tour)):
+        total_cost += graph[tour[i - 1]][tour[i]]
+    return total_cost
+
+def tsp_a_star(graph, s):
+    initial_state = TSPState([s], [s], graph)
+    min_path = float('inf')
+    visited_states = set()
+    priority_queue = []
+
+    heapq.heappush(priority_queue, (0, 0, initial_state))
+
+    while priority_queue:
+        total_cost, cost_so_far, current_state = heapq.heappop(priority_queue)
+
+        if current_state.is_complete():
+            min_path = min(min_path, total_cost)
+            continue
+
+        next_cities = current_state.next_cities()
+
+        for city in next_cities:
+            new_state = current_state.add_city(city)
+            if tuple(new_state.tour) not in visited_states:
+                new_cost_so_far = cost_so_far + graph[current_state.last_city()][city]
+                heuristic_value = manhattan_distance(graph[new_state.last_city()], graph[s])
+                new_total_cost = new_cost_so_far + heuristic_value
+                heapq.heappush(priority_queue, (new_total_cost, new_cost_so_far, new_state))
+                visited_states.add(tuple(new_state.tour))
+
+    return min_path
+
+def main():
+    # Graph representing coordinates of cities
+    cities = [(0, 0), (3, 4), (1, 2), (4, 1)]
+    # Create a graph with Manhattan distances between cities
+    graph = [[manhattan_distance(cities[i], cities[j]) for j in range(len(cities))] for i in range(len(cities))]
+    s = 0
+    print(tsp_a_star(graph, s))
+
+if __name__ == "__main__":
+    main()
