@@ -1,0 +1,53 @@
+class TowersOfHanoi:
+    def __init__(self, num_disks):
+        self.num_disks = num_disks
+        self.towers = [[], [], list(range(num_disks, 0, -1))]
+
+    def move_disk(self, from_tower, to_tower):
+        if not self.towers[from_tower]:
+            return False
+        disk = self.towers[from_tower].pop()
+        if self.towers[to_tower] and self.towers[to_tower][-1] <= disk:
+            self.towers[from_tower].append(disk)
+            return False
+        self.towers[to_tower].append(disk)
+        return True
+
+    def is_goal_state(self):
+        return self.towers[2] == list(range(self.num_disks, 0, -1))
+
+    def get_possible_moves(self):
+        possible_moves = []
+        for from_tower in range(3):
+            for to_tower in range(3):
+                if from_tower != to_tower and self.move_disk(from_tower, to_tower):
+                    possible_moves.append((from_tower, to_tower))
+                    self.move_disk(to_tower, from_tower)  # revert the move
+        return possible_moves
+
+    def __str__(self):
+        return str(self.towers)
+
+def main():
+    num_disks = 3
+    hanoi = TowersOfHanoi(num_disks)
+    print("Initial state:")
+    print(hanoi)
+
+    while not hanoi.is_goal_state():
+        moves = hanoi.get_possible_moves()
+        print("Possible moves:", moves)
+        if moves:
+            from_tower, to_tower = moves[0]  # Select the first possible move
+            hanoi.move_disk(from_tower, to_tower)
+            print("Moved disk from tower", from_tower, "to tower", to_tower)
+            print(hanoi)
+        else:
+            print("No possible moves left. Stuck!")
+            break
+
+    if hanoi.is_goal_state():
+        print("Congratulations! You solved the Towers of Hanoi puzzle.")
+
+if __name__ == "__main__":
+    main()
