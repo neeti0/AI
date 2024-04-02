@@ -1,0 +1,90 @@
+import copy
+from collections import deque
+
+class StateNode:
+    def __init__(self, state, parent=None, action=None):
+        self.state = state
+        self.parent = parent
+        self.action = action
+
+    def __eq__(self, other):
+        return isinstance(other, StateNode) and self.state == other.state
+
+    def __hash__(self):
+        return hash(tuple(map(tuple, self.state)))
+
+class EightPuzzle:
+    def __init__(self, initial_state, goal_state):
+        self.initial_state = initial_state
+        self.goal_state = goal_state
+
+    def get_blank_space(self, state):
+        for i in range(3):
+            for j in range(3):
+                if state[i][j] == 0:
+                    return (i, j)
+
+    def get_next_moves(self, state):
+        blank = self.get_blank_space(state)
+        moves = []
+
+        for delta in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            new_i, new_j = blank[0] + delta[0], blank[1] + delta[1]
+            if 0 <= new_i < 3 and 0 <= new_j < 3:
+                new_state = copy.deepcopy(state)
+                new_state[blank[0]][blank[1]] = new_state[new_i][new_j]
+                new_state[new_i][new_j] = 0
+                moves.append(new_state)
+
+        return moves
+
+class BreadthFirstSearch:
+    def __init__(self, puzzle):
+        self.puzzle = puzzle
+        self.closed = set()
+        self.open = deque()
+
+    def search(self):
+        initial_node = StateNode(self.puzzle.initial_state)
+        self.open.append(initial_node)
+
+        while self.open:
+            current_node = self.open.popleft()
+            self.closed.add(current_node)
+
+            if current_node.state == self.puzzle.goal_state:
+                path = []
+                while current_node.parent:
+                    path.append(current_node.state)
+                    current_node = current_node.parent
+                path.append(current_node.state)
+                path.reverse()
+                return path
+
+            for move in self.puzzle.get_next_moves(current_node.state):
+                next_node = StateNode(move, parent=current_node)
+                if next_node not in self.closed:
+                    self.open.append(next_node)
+
+        return None
+
+def main():
+    initial = [[2, 0, 3], [1, 8, 4], [7, 6, 5]]
+    goal = [[1, 2, 3], [8, 0, 4], [7, 6, 5]]
+
+    puzzle = EightPuzzle(initial, goal)
+    bfs = BreadthFirstSearch(puzzle)
+
+    path = bfs.search()
+
+    if path:
+        print("Solution Path:")
+        for state in path:
+            for row in state:
+                print(row)
+            print()
+    else:
+        print("No solution found.")
+
+if __name__ == "__main__":
+    main()
