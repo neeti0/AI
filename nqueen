@@ -1,0 +1,62 @@
+class NQueenNode:
+    def __init__(self, n, state=None):
+        self.n = n
+        if state:
+            self.state = state
+        else:
+            self.state = [[0] * n for _ in range(n)]  # Initialize an empty N×N matrix
+
+    def update_state(self, new_state):
+        self.state = new_state
+
+    def get_queens_positions(self):
+        queens = []
+        for row in range(self.n):
+            for col in range(self.n):
+                if self.state[row][col] == 1:
+                    queens.append((row, col))
+        return queens
+
+    def is_safe(self, row, col):
+        queens = self.get_queens_positions()
+        for queen_row, queen_col in queens:
+            if col == queen_col or abs(row - queen_row) == abs(col - queen_col):
+                return False
+        return True
+
+    def place_queen(self, row, col):
+        new_state = [row[:] for row in self.state]
+        new_state[row][col] = 1
+        return NQueenNode(self.n, new_state)
+
+    def get_possible_actions(self):
+        queens = self.get_queens_positions()
+        actions = []
+        for queen in queens:
+            row, col = queen
+            for i in range(self.n):
+                if i != row:
+                    actions.append((row, col, i))  # Move queen from current row to row 'i'
+        return actions
+
+    def perform_action(self, action):
+        row, col, new_row = action
+        if self.is_safe(new_row, col):
+            return self.place_queen(new_row, col)
+        return None
+
+    def print_board(self):
+        for row in range(self.n):
+            line = ['1' if self.state[row][col] == 1 else '0' for col in range(self.n)]
+            print(' '.join(line))
+        print()
+
+
+# Example usage:
+n = 2  # Change this to the desired size of the chessboard
+puzzle = NQueenNode(n)
+puzzle.print_board()  # Prints the initial empty board
+
+new_state = [[0, 1], [1, 0]]
+puzzle.update_state(new_state)
+puzzle.print_board()  # Prints the board after updating the state with new_state
