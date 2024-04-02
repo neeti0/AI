@@ -1,0 +1,40 @@
+from collections import deque
+
+def bfs_search(start_state, target_amount):
+    queue = deque([(start_state, [])])
+    visited = set()
+
+    while queue:
+        state, path = queue.popleft()
+        if state.isGoal(target_amount):
+            return path
+        if state in visited:
+            continue
+        visited.add(state)
+
+        next_moves = getNextMove(state)
+        for move, move_desc in next_moves:
+            queue.append((move, path + [move_desc]))
+
+    return None  # No solution found
+
+def main():
+    jug1_capacity = int(input("Enter capacity of Jug 1: "))
+    jug2_capacity = int(input("Enter capacity of Jug 2: "))
+    target_amount = int(input("Enter target amount of water: "))
+
+    jug1 = WaterJug(jug1_capacity)
+    jug2 = WaterJug(jug2_capacity)
+
+    start_state = (jug1, jug2)
+    solution_path = bfs_search(start_state, target_amount)
+
+    if solution_path:
+        print("Solution Path:")
+        for step, desc in enumerate(solution_path, 1):
+            print(f"Step {step}: {desc}")
+    else:
+        print("No solution found.")
+
+if __name__ == '__main__':
+    main()
