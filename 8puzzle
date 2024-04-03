@@ -1,13 +1,12 @@
-from collections import deque
+# Lab Assignment 2
+# Task 2: 8 Puzzle Problem
 
 class Puzzle:
-    # Your existing Puzzle class code here...
+  def __init__(self, board):
+    self.board = board
+    self.goal = [1, 2, 3, 4, 5, 6, 7, 8, 0]
 
-    def __init__(self, board):
-        self.board = board
-        self.goal = [1, 2, 3, 4, 5, 6, 7, 8, 0]
-
-    def printState(self):
+  def printState(self):
     print(f"{self.board[0]} {self.board[1]} {self.board[2]}\n{self.board[3]} {self.board[4]} {self.board[5]}\n{self.board[6]} {self.board[7]} {self.board[8]}")
 
   def isGoal(self):
@@ -67,6 +66,19 @@ class Puzzle:
       return self.moveLeft()
     elif direction == 4:
       return self.moveRight()
+    
+def main():
+  board = [1, 2, 3, 4, 5, 6, 7, 0, 8]
+  puzzle = Puzzle(board)
+  puzzle.printState()
+  print(puzzle.isGoal())
+  print(puzzle.move(1))
+  print(puzzle.move(2))
+  print(puzzle.move(3))
+  print(puzzle.move(4))
+
+if __name__ == "__main__":
+  main()
 
     def solve(self):
         queue = deque([(self.board, [])])
